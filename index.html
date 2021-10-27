@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>What businesses closed and opened during the pandemic?</title>
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex" />
+    <base target="_blank" />
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""
+    />
+
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script
+      src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+      crossorigin=""
+    ></script>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="content-container">
+      <h1>
+        Report: What Lower Manhattan businesses closed and opened during the
+        pandemic?
+      </h1>
+      <!-- <p>Ideas for next steps:<br/>
+        <ol>   
+            <li>DONE ECOD: Heat map view per neighborhood. Overview at a higher level for heat map, lower level detail on dots</li>
+            <li>ECOD: How one area is more heavily trafficked, does one street have a busier intersection by hour?</li>
+            <li>ECOD: Histogram and map are synced to show development over time
+            </li>
+            <li>Overlay based on high foot traffic with opening/closures</li>
+            <li>Overlay vacancies with pedestrian data</li>
+            <li>As a total % of people (external data to be handed off), how many people are passing by the sensors</li>
+            <li>People are interested in returning, map by dot how many are up or down % from month to month.</li>
+            <li>Wednesday: finish stacked histogram</li>
+            <li>Thurs: Filtering feature + some smaller graphs/charts</li>
+            <li>Comparing pandemic opening/closure rates to pre-pandemic rates</li>
+            <li>Overlaying neighborhood boundaries and subway stops to identify hard-hit areas. At first glance, the World Trade Center area and area by Fulton Street station seem to be two clusters.
+            <li>Incorporating EcoDev pedestrian data</li>
+            <li>Integrating Salesforce to update these maps live?</li>
+            </li>
+        </ol>
+    </p> -->
+
+      <div id="opening-map">
+        <h2>Opened Businesses</h2>
+        <p>
+          Of the <b>127</b> businesses that opened in Lower Manhattan during the
+          pandemic, <b>65</b> are restaurants or bars, <b>21</b> are personal or
+          business services, <b>19</b> are shops, and <b>8</b> are hotels.
+        </p>
+        <div id="mapid"></div>
+      </div>
+
+      <div id="closing-map">
+        <h2>Closed Businesses</h2>
+        <p>
+            Of the <b>218</b> businesses that closed in Lower Manhattan during the
+            pandemic, <b>94</b> are restaurants or bars, <b>39</b> are personal or
+            business services, <b>65</b> are shops, and <b>7</b> are hotels.
+          </p>
+        <div id="mapid2"></div>
+      </div>
+
+      <div id="histogram">
+        <h2>Histogram of closures/openings over time</h2>
+        <div id="histo"></div>
+      </div>
+    </div>
+
+    <script src="./graphic_opened.js"></script>
+    <script src="./graphic_closed.js"></script>
+    <script src="./histogram.js"></script>
+  </body>
+</html>

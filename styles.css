@@ -1,0 +1,51 @@
+#mapid, #mapid2 { 
+    height: 600px; 
+    width: 700px;
+    margin: auto;
+}
+
+#histo {
+    height: 400px;
+    width: 800px;
+}
+
+body{
+    background: whitesmoke;
+}
+
+
+#content-container {
+    padding-left: 180px;
+    padding-right: 180px;
+    padding-top: 40px;
+}
+
+h1{
+    font-family: "Barlow Condensed";
+}
+
+h2{
+    font-family: "IBM Plex Serif"
+}
+
+p{
+    font-family: "Open Sans";
+    font-size: 20px;
+}
+
+b{
+    font-weight: 600;
+}
+
+
+
+/* Histogram Styling */
+.bar {
+    shape-rendering: crispEdges;
+}
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
