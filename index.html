@@ -1,83 +1,964 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>What businesses closed and opened during the pandemic?</title>
-    <meta name="viewport" content="width=device-width" />
-    <meta name="robots" content="noindex" />
-    <base target="_blank" />
+<html>
+  <meta charset="utf-8" />
+  <style>
+    h2 {
+      font-size: 24px;
+    }
+    body {
+      font: 10px sans-serif;
+      margin: 30px;
+    }
+    .bar {
+      shape-rendering: geometricPrecision;
+      border-radius: 5px;
+    }
 
-    <script src="https://d3js.org/d3.v6.min.js"></script>
+    #histo {
+      margin: auto;
+    }
 
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-      crossorigin=""
-    />
+    .histogram {
+      margin: auto;
+      text-align: center;
+    }
 
-    <!-- Make sure you put this AFTER Leaflet's CSS -->
-    <script
-      src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-      crossorigin=""
-    ></script>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <div id="content-container">
-      <h1>
-        Report: What Lower Manhattan businesses closed and opened during the
-        pandemic?
-      </h1>
-      <!-- <p>Ideas for next steps:<br/>
-        <ol>   
-            <li>DONE ECOD: Heat map view per neighborhood. Overview at a higher level for heat map, lower level detail on dots</li>
-            <li>ECOD: How one area is more heavily trafficked, does one street have a busier intersection by hour?</li>
-            <li>ECOD: Histogram and map are synced to show development over time
-            </li>
-            <li>Overlay based on high foot traffic with opening/closures</li>
-            <li>Overlay vacancies with pedestrian data</li>
-            <li>As a total % of people (external data to be handed off), how many people are passing by the sensors</li>
-            <li>People are interested in returning, map by dot how many are up or down % from month to month.</li>
-            <li>Wednesday: finish stacked histogram</li>
-            <li>Thurs: Filtering feature + some smaller graphs/charts</li>
-            <li>Comparing pandemic opening/closure rates to pre-pandemic rates</li>
-            <li>Overlaying neighborhood boundaries and subway stops to identify hard-hit areas. At first glance, the World Trade Center area and area by Fulton Street station seem to be two clusters.
-            <li>Incorporating EcoDev pedestrian data</li>
-            <li>Integrating Salesforce to update these maps live?</li>
-            </li>
-        </ol>
-    </p> -->
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+  </style>
+</html>
 
-      <div id="opening-map">
-        <h2>Opened Businesses</h2>
-        <p>
-          Of the <b>127</b> businesses that opened in Lower Manhattan during the
-          pandemic, <b>65</b> are restaurants or bars, <b>21</b> are personal or
-          business services, <b>19</b> are shops, and <b>8</b> are hotels.
-        </p>
-        <div id="mapid"></div>
-      </div>
+<head>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin=""
+  />
 
-      <div id="closing-map">
-        <h2>Closed Businesses</h2>
-        <p>
-            Of the <b>218</b> businesses that closed in Lower Manhattan during the
-            pandemic, <b>94</b> are restaurants or bars, <b>39</b> are personal or
-            business services, <b>65</b> are shops, and <b>7</b> are hotels.
-          </p>
-        <div id="mapid2"></div>
-      </div>
+  <!-- Make sure you put this AFTER Leaflet's CSS -->
+  <script
+    src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""
+  ></script>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
 
-      <div id="histogram">
-        <h2>Histogram of closures/openings over time</h2>
-        <div id="histo"></div>
-      </div>
+<body>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+
+  <div id="histogram">
+    <h2>Histogram of closures/openings over time</h2>
+    <div id="histo"></div>
+  </div>
+  <div style="display: inline-flex">
+    <div id="opening-map" style="flex-order: 1">
+      <h2>Opened Businesses</h2>
+      <div id="mapid"></div>
+
+      <p>
+        Of the <b>127</b> businesses that opened in Lower Manhattan during the
+        pandemic, <b>65</b> are restaurants or bars, <b>21</b> are personal or
+        business services, <b>19</b> are shops, and <b>8</b> are hotels.
+      </p>
     </div>
 
-    <script src="./graphic_opened.js"></script>
-    <script src="./graphic_closed.js"></script>
-    <script src="./histogram.js"></script>
-  </body>
-</html>
+    <div id="closing-map">
+      <h2>Closed Businesses</h2>
+      <div id="mapid2"></div>
+
+      <p>
+        Of the <b>218</b> businesses that closed in Lower Manhattan during the
+        pandemic, <b>94</b> are restaurants or bars, <b>39</b> are personal or
+        business services, <b>65</b> are shops, and <b>7</b> are hotels.
+      </p>
+    </div>
+  </div>
+
+  <!-- <script src="./graphic_opened.js"></script> -->
+  <!--  <script src="./graphic_closed.js"></script> -->
+
+  <!-- OPENED MAP -->
+  <!-- OPENED MAP -->
+  <!-- OPENED MAP -->
+  <!-- OPENED MAP -->
+  <!-- OPENED MAP -->
+  <!-- OPENED MAP -->
+  <!-- OPENED MAP -->
+  <script>
+    var active_month = "1/1/2022";
+    var mymap = L.map("mapid").setView([40.708, -74.01], 15);
+
+    var openLayer = L.tileLayer(
+      "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+      {
+        attribution:
+          'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 18,
+        id: "mapbox/streets-v11",
+        tileSize: 512,
+        zoomOffset: -1,
+        accessToken:
+          "pk.eyJ1IjoiYW5uaWVlZnUiLCJhIjoiY2t1aWZ6Nm1kMDd6MjJucDh0NWtvMGI5diJ9.3i9JmnvFio6863IOOxI1_g",
+      }
+    ).addTo(mymap);
+
+    // d3.csv("assets/all_retail.csv", function(data){
+    //     console.log(data);
+    // });
+
+    var markersLayer = new L.LayerGroup();
+
+    var markersCLayer = new L.LayerGroup();
+
+    selId = null;
+
+    var o1;
+    var o2;
+    var o3;
+    var o4;
+    var o5;
+    var o6;
+    var o7;
+    var o8;
+    var o9;
+    var o10;
+    var o11;
+    var o12;
+    var o13;
+    var o14;
+    var o15;
+
+    d3.csv("assets/opened2.csv").then(function (opened) {
+      var count = 0;
+
+      // o1 = opened.filter(function(d) {
+      //   return d.date_opened > cutoffDate;
+      // })
+
+      // NEW HEATMAP
+      for (var i in opened) {
+        var row = opened[i];
+        var markercolor;
+
+        let omarkers = L.circleMarker([row.Latitude, row.Longitude], {
+          radius: row.Count * 5,
+          color: "green",
+          fillColor: markercolor,
+          fillOpacity: 0.4,
+        })
+          // .addTo(mymap)
+          .bindPopup(
+            "<b>" +
+              row.Business +
+              "</b><br/>" +
+              row["Address"] +
+              "<br/>" +
+              row.Count
+          );
+
+        omarkers.on("mouseover", function (e) {
+          this.openPopup();
+        });
+
+        markersLayer.addLayer(omarkers);
+
+        count += 1;
+      }
+    });
+
+    markersLayer.addTo(mymap);
+
+    </script>
+
+    <script>
+
+    var mymap2 = L.map("mapid2").setView([40.708, -74.01], 15);
+
+    var closedLayer = L.tileLayer(
+      "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+      {
+        attribution:
+          'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 18,
+        id: "mapbox/streets-v11",
+        tileSize: 512,
+        zoomOffset: -1,
+        accessToken:
+          "pk.eyJ1IjoiYW5uaWVlZnUiLCJhIjoiY2t1aWZ6Nm1kMDd6MjJucDh0NWtvMGI5diJ9.3i9JmnvFio6863IOOxI1_g",
+      }
+    ).addTo(mymap2);
+
+    // d3.csv("assets/all_retail.csv", function(data){
+    //     console.log(data);
+    // });
+
+    d3.csv("assets/closed.csv").then(function (closed) {
+      //   console.log(closed);
+
+      var count = 0;
+
+      for (var i in closed) {
+        var row = closed[i];
+        var markercolor;
+
+        var cmarkers = L.circleMarker([row.Latitude, row.Longitude], {
+          radius: row.Count * 5,
+          color: "red",
+          fillColor: markercolor,
+          fillOpacity: 0.4,
+        })
+          // .addTo(mymap2)
+          .bindPopup(
+            "<b>" +
+              row.Business +
+              "</b><br/>" +
+              row["Address"] +
+              "<br/>" +
+              row.Count
+          );
+
+        cmarkers.on("mouseover", function (e) {
+          this.openPopup();
+        });
+
+        markersCLayer.addLayer(cmarkers);
+
+        count += 1;
+      }
+    });
+    markersCLayer.addTo(mymap2);
+
+
+
+    function removeOLayer(date) {
+      markersLayer.clearLayers();
+      updateOLayer(date);
+    }
+
+    function removeCLayer(date) {
+      markersCLayer.clearLayers();
+      console.log("call")
+      updateCLayer(date);
+    }
+
+    function updateOLayer(date) {
+      let file = fetchDateFile(date);
+      console.log("OPEN ")
+
+      // file.filter(function(d) {
+      //     return d.date_opened > cutoffDate;
+      //   })
+      for (var i in file) {
+        var row = file[i];
+        console.log("row: " + i + " " + row.Latitude);
+        if (row.Latitude >0){
+        var markercolor;
+
+        let omarkers = L.circleMarker([row.Latitude, row.Longitude], {
+          radius: row.Count * 5,
+          color: "green",
+          fillColor: markercolor,
+          fillOpacity: 0.4,
+        })
+          // .addTo(mymap)
+          .bindPopup(
+            "<b>" +
+              row.Business +
+              "</b><br/>" +
+              row["Address"] +
+              "<br/>" +
+              row.Count
+          );
+
+        omarkers.on("mouseover", function (e) {
+          this.openPopup();
+        });
+
+        markersLayer.addLayer(omarkers);
+      }
+    }
+      markersLayer.addTo(mymap);
+    }
+
+    function updateCLayer(date) {
+      var count = 0;
+
+      let file = fetchCDateFile(date);
+      console.log("CLOSE")
+
+      // file.filter(function(d) {
+      //     return d.date_opened > cutoffDate;
+      //   })
+      for (var i in file) {
+        var row = file[i];
+        // console.log("row: " + i + " " + row.Latitude)
+        var markercolor;
+
+        let cmarkers = L.circleMarker([row.Latitude, row.Longitude], {
+          radius: row.Count * 5,
+          color: "red",
+          fillColor: markercolor,
+          fillOpacity: 0.4,
+        })
+          // .addTo(mymap)
+          .bindPopup(
+            "<b>" +
+              row.Business +
+              "</b><br/>" +
+              row["Address"] +
+              "<br/>" +
+              row.Count
+          );
+
+        cmarkers.on("mouseover", function (e) {
+          this.openPopup();
+        });
+
+        markersCLayer.addLayer(cmarkers);
+      }
+      markersCLayer.addTo(mymap2);
+    }
+
+    
+    var four_20;
+    var five_20;
+    var six_20;
+    var seven_20;
+    var eight_20;
+    var nine_20;
+    var ten_20;
+    var eleven_20;
+    var twelve_20;
+    var one_21;
+    var two_21;
+    var three_21;
+    var four_21;
+    var five_21;
+    var six_21;
+    var seven_21;
+    var eight_21;
+    var nine_21;
+    var ten_21;
+    var all_21;
+
+    var cfour_20;
+    var cfive_20;
+    var csix_20;
+    var cseven_20;
+    var ceight_20;
+    var cnine_20;
+    var cten_20;
+    var celeven_20;
+    var ctwelve_20;
+    var cone_21;
+    var ctwo_21;
+    var cthree_21;
+    var cfour_21;
+    var cfive_21;
+    var csix_21;
+    var cseven_21;
+    var ceight_21;
+    var cnine_21;
+    var cten_21;
+    var call_21;
+
+    d3.csv("./opened/4-6_20_OP_PIV.csv").then(function (file) {
+      four_20 = file;
+      five_20 = file;
+      six_20 = file;
+    });
+    d3.csv("./opened/7_20_OP_PIV.csv").then(function (file) {
+      seven_20 = file;
+    });
+    d3.csv("./opened/8_20_OP_PIV.csv").then(function (file) {
+      eight_20 = file;
+    });
+    d3.csv("./opened/9_20_OP_PIV.csv").then(function (file) {
+      nine_20 = file;
+    });
+    d3.csv("./opened/10_20_OP_PIV.csv").then(function (file) {
+      ten_20 = file;
+    });
+    d3.csv("./opened/11_20_OP_PIV.csv").then(function (file) {
+      eleven_20 = file;
+    });
+    d3.csv("./opened/12_20_OP_PIV.csv").then(function (file) {
+      twelve_20 = file;
+    });
+    d3.csv("./opened/1_21_OP_PIV.csv").then(function (file) {
+      one_21 = file;
+    });
+    d3.csv("./opened/2_21_OP_PIV.csv").then(function (file) {
+      two_21 = file;
+    });
+    d3.csv("./opened/3_21_OP_PIV.csv").then(function (file) {
+      three_21 = file;
+    });
+    d3.csv("./opened/4_21_OP_PIV.csv").then(function (file) {
+      four_21 = file;
+    });
+    d3.csv("./opened/5_21_OP_PIV.csv").then(function (file) {
+      five_21 = file;
+    });
+    d3.csv("./opened/6_21_OP_PIV.csv").then(function (file) {
+      six_21 = file;
+    });
+    d3.csv("./opened/7_21_OP_PIV.csv").then(function (file) {
+      seven_21 = file;
+    });
+    d3.csv("./opened/8_21_OP_PIV.csv").then(function (file) {
+      eight_21 = file;
+    });
+    d3.csv("./opened/9_21_OP_PIV.csv").then(function (file) {
+      nine_21 = file;
+    });
+    d3.csv("./opened/10_21_OP_PIV.csv").then(function (file) {
+      ten_21 = file;
+    });
+    d3.csv("./opened/11_21_OP_PIV.csv").then(function (file) {
+      eleven_21 = file;
+    });
+
+    d3.csv("./closed/3-4_20_CL_PIV.csv").then(function (cfile) {
+      cfour_20 = cfile;
+    });
+    d3.csv("./closed/5_20_CL_PIV.csv").then(function (cfile) {
+      cfive_20 = cfile;
+    });
+    d3.csv("./closed/6_20_CL_PIV.csv").then(function (cfile) {
+      csix_20 = cfile;
+    });
+    d3.csv("./closed/7_20_CL_PIV.csv").then(function (cfile) {
+      cseven_20 = cfile;
+    });
+    d3.csv("./closed/8_20_CL_PIV.csv").then(function (cfile) {
+      ceight_20 = cfile;
+    });
+    d3.csv("./closed/9_20_CL_PIV.csv").then(function (cfile) {
+      cnine_20 = cfile;
+    });
+    d3.csv("./closed/10_20_CL_PIV.csv").then(function (cfile) {
+      cten_20 = cfile;
+    });
+    d3.csv("./closed/11_20_CL_PIV.csv").then(function (cfile) {
+      celeven_20 = cfile;
+    });
+    d3.csv("./closed/12_20_CL_PIV.csv").then(function (cfile) {
+      ctwelve_20 = cfile;
+    });
+    d3.csv("./closed/1_21_CL_PIVV.csv").then(function (cfile) {
+      cone_21 = cfile;
+    });
+    d3.csv("./closed/2_21_CL_PIV.csv").then(function (cfile) {
+      ctwo_21 = cfile;
+    });
+    d3.csv("./closed/3_21_CL_PIV.csv").then(function (cfile) {
+      cthree_21 = cfile;
+    });
+    d3.csv("./closed/4_21_CL_PIV.csv").then(function (cfile) {
+      cfour_21 = cfile;
+    });
+    d3.csv("./closed/5_21_CL_PIV.csv").then(function (cfile) {
+      cfive_21 = cfile;
+    });
+    d3.csv("./closed/6_21_CL_PIV.csv").then(function (cfile) {
+      csix_21 = cfile;
+    });
+    d3.csv("./closed/7_21_CL_PIV.csv").then(function (cfile) {
+      cseven_21 = cfile;
+    });
+    d3.csv("./closed/8_21_CL_PIV.csv").then(function (cfile) {
+      ceight_21 = cfile;
+    });
+    d3.csv("./closed/9_21_CL_PIV.csv").then(function (cfile) {
+      cnine_21 = cfile;
+    });
+    d3.csv("./closed/10_21_CL_PIV.csv").then(function (cfile) {
+      cten_21 = cfile;
+    });
+    d3.csv("./closed/11_21_CL_PIV.csv").then(function (cfile) {
+      celeven_21 = cfile;
+    });
+
+    function fetchDateFile(date) {
+      // console.log(date);
+      if (date === "4/1/2020") {
+        return four_20;
+      } else if (date == "5/1/2020") {
+        return five_20;
+      } else if (date == "6/1/2020") {
+        return six_20;
+      } else if (date == "7/1/2020") {
+        return seven_20;
+      } else if (date == "8/1/2020") {
+        return eight_20;
+      } else if (date == "9/1/2020") {
+        return nine_20;
+      } else if (date == "10/1/2020") {
+        return ten_20;
+      } else if (date == "11/1/2020") {
+        return eleven_20;
+      } else if (date == "12/1/2020") {
+        return twelve_20;
+      } else if (date == "1/1/2021") {
+        return one_21;
+      } else if (date == "2/1/2021") {
+        return two_21;
+      } else if (date == "3/1/2021") {
+        return three_21;
+      } else if (date == "4/1/2021") {
+        return four_21;
+      } else if (date == "5/1/2021") {
+        return five_21;
+      } else if (date == "6/1/2021") {
+        return six_21;
+      } else if (date == "7/1/2021") {
+        return seven_21;
+      } else if (date == "8/1/2021") {
+        return eight_21;
+      } else if (date == "9/1/2021") {
+        return nine_21;
+      } else if (date == "10/1/2021") {
+        return ten_21;
+      } else if (date == "11/1/2021") {
+        return eleven_21;
+      } else {
+        return eleven_21;
+      }
+    }
+
+    function fetchCDateFile(date) {
+      // console.log(date);
+      if (date === "4/1/2020") {
+        return cfour_20;
+      } else if (date == "5/1/2020") {
+        return cfive_20;
+      } else if (date == "6/1/2020") {
+        return csix_20;
+      } else if (date == "7/1/2020") {
+        return cseven_20;
+      } else if (date == "8/1/2020") {
+        return ceight_20;
+      } else if (date == "9/1/2020") {
+        return cnine_20;
+      } else if (date == "10/1/2020") {
+        return cten_20;
+      } else if (date == "11/1/2020") {
+        return celeven_20;
+      } else if (date == "12/1/2020") {
+        return ctwelve_20;
+      } else if (date == "1/1/2021") {
+        return cone_21;
+      } else if (date == "2/1/2021") {
+        return ctwo_21;
+      } else if (date == "3/1/2021") {
+        return cthree_21;
+      } else if (date == "4/1/2021") {
+        return cfour_21;
+      } else if (date == "5/1/2021") {
+        return cfive_21;
+      } else if (date == "6/1/2021") {
+        return csix_21;
+      } else if (date == "7/1/2021") {
+        return cseven_21;
+      } else if (date == "8/1/2021") {
+        return ceight_21;
+      } else if (date == "9/1/2021") {
+        return cnine_21;
+      } else if (date == "10/1/2021") {
+        return cten_21;
+      } else if (date == "11/1/2021") {
+        return celeven_21;
+      } else {
+        return celeven_21;
+      }
+    }
+  </script>
+
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <script>
+    function toTitleCase(str) {
+      return str.replace(/\w\S*/g, function (txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      });
+    }
+
+    var margin = {
+        top: 60,
+        right: 12,
+        bottom: 30,
+        left: 120,
+      },
+      width = 720 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
+
+    var parseDate = d3.time.format("%m/%d/%Y").parse;
+    var formatDate = d3.time.format("%m/%y");
+    var formatCount = d3.format(",.0f");
+
+    var x = d3.time.scale().range([0, width]);
+    var y = d3.scale.linear().range([height, 0]);
+    var color = d3.scale
+      .ordinal()
+      .range([d3.rgb("#CC0000"), d3.rgb("green"), d3.rgb("blue")]);
+
+    var xAxis = d3.svg
+      .axis()
+      .scale(x)
+      .orient("bottom")
+      .tickFormat(formatDate)
+      .ticks(15);
+
+    var yAxis = d3.svg.axis().scale(y).orient("left").ticks(12);
+
+    var stack = d3.layout.stack().values(function (d) {
+      return d.values;
+    });
+
+    // Create the SVG drawing area
+    var svg = d3
+      .select("#histo")
+      .append("svg")
+      .attr("id", "histogram")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Get the data
+    d3.csv("./assets/all_retail.csv", function (error, data) {
+      data.forEach(function (d) {
+        d["opened_date"] = parseDate(d["OpenDate"]);
+        d["closed_date"] = parseDate(d["CloseDate"]);
+      });
+
+      // console.log(data)
+
+      var monthExtent = d3.extent(data, function (d) {
+        return d.closed_date;
+      });
+
+      // Create one bin per month, use an offset to include the first and last months
+      var monthBins = d3.time.months(
+        d3.time.month.offset(monthExtent[0], -1),
+        d3.time.month.offset(monthExtent[1], 1)
+      );
+
+      // Use the histogram layout to create a function that will bin the data
+      var binByMonth = d3.layout
+        .histogram()
+        .value(function (d) {
+          if (d.closed_date != null) {
+            // if there is a closed date, use it
+            return d.closed_date;
+          } else {
+            return d.opened_date;
+            countie += 1;
+          }
+        })
+        .bins(monthBins);
+
+      var dataGroupedByBorough = d3
+        .nest()
+        .key(function (d) {
+          return d["openclosed"];
+        })
+        .map(data, d3.map);
+
+      // console.log(dataGroupedByBorough)
+
+      // Apply the histogram binning function to the data and convert from
+      // a map to an array so that the stack layout can consume it
+      var histDataByBorough = [];
+      // console.log(dataGroupedByBorough);
+      dataGroupedByBorough.forEach(function (key, value) {
+        // Bin the data for each borough by month
+        var histData = binByMonth(value);
+        // console.log(histData);
+        histDataByBorough.push({
+          borough: key,
+          values: histData,
+        });
+      });
+
+      // console.log(histDataByBorough);
+
+      var stackedHistData = stack(histDataByBorough);
+      // console.log(stackedHistData);
+
+      // // Scale the range of the data by setting the domain
+      x.domain(d3.extent(monthBins));
+      y.domain([
+        0,
+        d3.max(stackedHistData[stackedHistData.length - 1].values, function (
+          d
+        ) {
+          return d.y + d.y0;
+        }),
+      ]);
+
+      // // Set up one group for each borough
+      // // Note that color doesn't have a domain set, so colors are assigned to boroughs
+      // // below on a first come, first serve basis
+      var borough = svg
+        .selectAll(".openclosed")
+        .data(stackedHistData)
+        .enter()
+        .append("g")
+        .attr("class", "borough")
+        .style("fill", function (d, i) {
+          // console.log(d);
+          return color(d.borough);
+        })
+        .attr("opacity", 0.8)
+        .style("stroke", function (d, i) {
+          return d3.rgb(color(d.borough)).darker();
+        });
+
+      // // Months have slightly different lengths so calculate the width for each bin
+      // // Draw the rectangles, starting from the upper left corner and going down
+      borough
+        .selectAll(".bar")
+        .data(function (d) {
+          return d.values;
+        })
+        .enter()
+        .append("g")
+        .attr("class", "bargroup")
+        .append("rect")
+        .attr("class", "bar")
+        .attr("id", function (d) {
+          d;
+        })
+        .attr("x", function (d) {
+          return x(d.x);
+        })
+        .attr("width", function (d) {
+          return x(new Date(d.x.getTime() + d.dx)) - x(d.x) - 8;
+        })
+        .attr("y", function (d) {
+          return y(d.y0 + d.y);
+        })
+        .attr("height", function (d) {
+          return y(d.y0) - y(d.y0 + d.y);
+        });
+
+      // // Add the X Axis
+      svg
+        .append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+      // // Add the Y Axis and label
+      svg
+        .append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Number of Openings/Closures");
+
+      // // Add the legend and center it horizontally
+      var maxLegendWidth = 110;
+      var xStart = (width - maxLegendWidth * color.domain().length) / 2;
+      var legend = svg
+        .selectAll(".legend")
+        .data(color.domain().slice())
+        .enter()
+        .append("g")
+        .attr("class", "legend")
+        .attr("transform", function (d, i) {
+          return "translate(" + i * maxLegendWidth + ",-40)";
+        });
+
+      legend
+        .append("rect")
+        .attr("x", xStart)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", color);
+
+      legend
+        .append("text")
+        .attr("x", xStart + 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "start")
+        .attr("fill", "black")
+        .text(function (d) {
+          return toTitleCase(d);
+        });
+
+      // Moving Line Tooltip
+
+      let mouse_line = svg
+        .append("line")
+        .attr("id", "mouse_line")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", 1)
+        .attr("y2", height)
+        .attr("stroke", "black")
+        .attr("stroke-width", "1px")
+        .attr("z-index", 0)
+        .attr("opacity", 0);
+
+      let tooltip_g = svg.append("g").attr("opacity", 0);
+
+      let tooltip_label1 = tooltip_g
+        .append("text")
+        .attr("id", "tooltip_label1")
+        .attr("stroke", "darkgrey")
+        .attr("font-family", "IBM Plex Serif', Times, serif;")
+        .attr("font-size", "12px")
+        .attr("fill", "darkgrey")
+        .attr("opacity", 0);
+
+      let active = svg
+        .append("rect")
+        .attr("id", "active")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill", "none")
+        .attr("pointer-events", "all");
+
+      active.on("mouseenter", function () {
+        mouse_line.attr("opacity", 0.4);
+      });
+
+      svg.on("mouseleave", function () {
+        mouse_line.attr("opacity", 0);
+        tooltip_label1.attr("opacity", 0);
+      });
+
+      active.on("mousemove", function () {
+        let mouse_loc = d3.mouse(this);
+
+        mouse_line
+          .attr("transform", "translate(" + mouse_loc[0] + ",0)")
+          .attr("visibility", "visible");
+
+        let x_loc = mouse_loc[0];
+        let y_loc = mouse_loc[1];
+
+        let modified_x = mouse_loc[0] + 10;
+        // console.log(x);
+        // tooltip_g.attr("transform", 'translate(' + modified_x + ',' + mouse_loc[1] + ')');
+
+        // console.log(xScale(newark_data.values[0]['month']))
+        var i;
+
+        var month_list = [
+          "4/1/2020",
+          "5/1/2020",
+          "6/1/2020",
+          "7/1/2020",
+          "8/1/2020",
+          "9/1/2020",
+          "10/1/2020",
+          "11/1/2020",
+          "12/1/2020",
+          "1/1/2021",
+          "2/1/2021",
+          "3/1/2021",
+          "4/1/2021",
+          "5/1/2021",
+          "6/1/2021",
+          "7/1/2021",
+          "8/1/2021",
+          "9/1/2021",
+          "10/1/2021",
+          "11/1/2021",
+        ];
+        var this_month = "1/1/2021";
+        if (x_loc < 30.66) {
+          this_month = month_list[1];
+        } else if (x_loc > 30.66 && x_loc < 61.66) {
+          this_month = month_list[2];
+        } else if (x_loc > 61.66 && x_loc < 92.66) {
+          this_month = month_list[3];
+        } else if (x_loc > 92.66 && x_loc < 123.66) {
+          this_month = month_list[4];
+        } else if (x_loc > 123.66 && x_loc < 154.66) {
+          this_month = month_list[5];
+        } else if (x_loc > 154.66 && x_loc < 185.66) {
+          this_month = month_list[6];
+        } else if (x_loc > 185.66 && x_loc < 216.66) {
+          this_month = month_list[7];
+        } else if (x_loc > 216.66 && x_loc < 247.66) {
+          this_month = month_list[8];
+        } else if (x_loc > 247.66 && x_loc < 278.66) {
+          this_month = month_list[9];
+        } else if (x_loc > 278.66 && x_loc < 309.66) {
+          this_month = month_list[10];
+        } else if (x_loc > 309.66 && x_loc < 340.66) {
+          this_month = month_list[11];
+        } else if (x_loc > 340.66 && x_loc < 371.66) {
+          this_month = month_list[12];
+        } else if (x_loc > 371.66 && x_loc < 402.66) {
+          this_month = month_list[13];
+        } else if (x_loc > 402.66 && x_loc < 433.66) {
+          this_month = month_list[14];
+        } else if (x_loc > 433.66 && x_loc < 463.44) {
+          this_month = month_list[15];
+        } else if (x_loc > 463.44 && x_loc < 494.44) {
+          this_month = month_list[16];
+        } else if (x_loc > 494.44 && x_loc < 525.44) {
+          this_month = month_list[17];
+        } else if (x_loc > 525.44 && x_loc < 556.44) {
+          this_month = month_list[18];
+        } else if (x_loc > 556.44) {
+          this_month = month_list[19];
+        } else {
+          this_month = month_list[20];
+        }
+
+        // set active_month to new
+        // active is jan, this is
+        if (this_month != active_month) {
+          processCheck(this_month);
+        }
+
+        // for (i = 0; i < 11; i++) {
+        //   if (x > xScale(newark_data.values[i]['month'])-15 &&  x < xScale(newark_data.values[i]['month'])+15){
+        //     console.log(i)
+        //     tooltip_label1.text("")
+        //     tooltip_label2.text("")
+
+        //     tooltip_g.attr("opacity", 1)
+        //    if (i != 1 && i!= 10){
+        //     tooltip_label1.attr("opacity", "1").text(Math.round(newark_data.values[i]['amt']*1000)/10+"%").attr("transform", 'translate(' + Number(xScale(newark_data.values[i]['month'])+15) + ',' + Number(yScale(newark_data.values[i]['amt'])-15) + ')');
+        //     tooltip_label2.attr("opacity", "1").text(Math.round(nj_data.values[i]['amt']*1000)/10+"%").attr("transform", 'translate(' + Number(xScale(nj_data.values[i]['month'])+15) + ',' + Number(yScale(nj_data.values[i]['amt'])-15) + ')');
+        //   }
+        //   else {
+        //     tooltip_label1.attr("opacity", "1").text(Math.round(newark_data.values[i]['amt']*1000)/10+"%").attr("transform", 'translate(' + Number(xScale(newark_data.values[i]['month'])-28) + ',' + Number(yScale(newark_data.values[i]['amt'])-15) + ')');
+        //     tooltip_label2.attr("opacity", "1").text(Math.round(nj_data.values[i]['amt']*1000)/10+"%").attr("transform", 'translate(' + Number(xScale(nj_data.values[i]['month'])-28) + ',' + Number(yScale(nj_data.values[i]['amt'])-15) + ')');
+
+        //   }
+        // }
+        // }
+      });
+    });
+  </script>
+
+  <!-- Event Handling Script -->
+  <script>
+    function processCheck(checkdate) {
+      // create separate geojson files from the csv
+      removeOLayer(checkdate);
+      removeCLayer(checkdate);
+
+      active_month = checkdate;
+    }
+  </script>
+</body>

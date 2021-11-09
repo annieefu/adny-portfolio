@@ -100,14 +100,12 @@ d3.csv("./assets/all_retail.csv").then(function(d){
     nestedData.forEach(function(key, value) {
         // Bin the data for each borough by month
         var histData = binByMonth(value);
-        console.log(histData)
         histDataByOpening.push({
             key: key,
             values: histData
         });
     });
 
-    console.log(histDataByOpening)
 
     var stackedHistData = stack(histDataByOpening);
 
