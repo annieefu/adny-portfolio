@@ -170,6 +170,8 @@
       // NEW HEATMAP
       for (var i in opened) {
         var row = opened[i];
+
+        if (row.Latitude >0){
         var markercolor;
 
         let omarkers = L.circleMarker([row.Latitude, row.Longitude], {
@@ -196,6 +198,7 @@
 
         count += 1;
       }
+    }
     });
 
     markersLayer.addTo(mymap);
@@ -224,6 +227,50 @@
     //     console.log(data);
     // });
 
+
+    d3.csv("assets/opened2.csv").then(function (opened) {
+      var count = 0;
+
+      // o1 = opened.filter(function(d) {
+      //   return d.date_opened > cutoffDate;
+      // })
+
+      // NEW HEATMAP
+      for (var i in opened) {
+        var row = opened[i];
+
+        if (row.Latitude >0){
+        var markercolor;
+
+        let omarkers = L.circleMarker([row.Latitude, row.Longitude], {
+          radius: row.Count * 5,
+          color: "#6a994e",
+          fillColor: markercolor,
+          fillOpacity: 0.7,
+        })
+          // .addTo(mymap)
+          .bindPopup(
+            "<b>" +
+              row.Business +
+              "</b><br/>" +
+              row["Address"] +
+              "<br/>" +
+              row.Count
+          );
+
+        omarkers.on("mouseover", function (e) {
+          this.openPopup();
+        });
+
+        markersBLayer.addLayer(omarkers);
+
+        count += 1;
+      }
+    }
+    });
+
+
+
     d3.csv("assets/closed.csv").then(function (closed) {
       //   console.log(closed);
 
@@ -231,6 +278,8 @@
 
       for (var i in closed) {
         var row = closed[i];
+
+        if (row.Latitude >0){
         var markercolor;
 
         var cmarkers = L.circleMarker([row.Latitude, row.Longitude], {
@@ -254,12 +303,51 @@
         });
 
         markersCLayer.addLayer(cmarkers);
-
         count += 1;
       }
+    }
+    });
+
+
+    d3.csv("assets/closed.csv").then(function (closed) {
+      //   console.log(closed);
+
+      var count = 0;
+
+      for (var i in closed) {
+        var row = closed[i];
+
+        if (row.Latitude >0){
+        var markercolor;
+
+        var cmarkers = L.circleMarker([row.Latitude, row.Longitude], {
+          radius: row.Count * 5,
+          color: "#bc4749",
+          fillColor: markercolor,
+          fillOpacity: 0.6,
+        })
+          // .addTo(mymap2)
+          .bindPopup(
+            "<b>" +
+              row.Business +
+              "</b><br/>" +
+              row["Address"] +
+              "<br/>" +
+              row.Count
+          );
+
+        cmarkers.on("mouseover", function (e) {
+          this.openPopup();
+        });
+
+        markersBLayer.addLayer(cmarkers);
+        count += 1;
+      }
+    }
     });
     markersCLayer.addTo(mymap2);
 
+    markersBLayer.addTo(mymap3)
 
 
     function removeOLayer(date) {
@@ -274,6 +362,7 @@
 
     function removeBLayer(date){
       markersBLayer.clearLayers();
+      console.log("called B")
       updateBLayer(date);
     }
 
@@ -290,9 +379,9 @@
 
         let omarkers = L.circleMarker([row.Latitude, row.Longitude], {
           radius: row.Count * 5,
-          color: "#73ba9b",
+          color: "#6a994e",
           fillColor: markercolor,
-          fillOpacity: 0.6,
+          fillOpacity: 0.7,
         })
           // .addTo(mymap)
           .bindPopup(
@@ -318,14 +407,16 @@
       var count = 0;
 
       let file = fetchCDateFile(date);
-      console.log("CLOSE")
 
       // file.filter(function(d) {
       //     return d.date_opened > cutoffDate;
       //   })
+
       for (var i in file) {
         var row = file[i];
         // console.log("row: " + i + " " + row.Latitude)
+
+      if (row.Latitude >0){
         var markercolor;
 
         let cmarkers = L.circleMarker([row.Latitude, row.Longitude], {
@@ -352,44 +443,18 @@
       }
       markersCLayer.addTo(mymap2);
     }
-
+  }
 
     function updateBLayer(date) {
       var count = 0;
+
 
       let file = fetchDateFile(date);
 
       // file.filter(function(d) {
       //     return d.date_opened > cutoffDate;
       //   })
-      for (var i in file) {
-        var row = file[i];
-        // console.log("row: " + i + " " + row.Latitude)
-        var markercolor;
-
-        let bmarkers = L.circleMarker([row.Latitude, row.Longitude], {
-          radius: row.Count * 5,
-          color: "#bc4749",
-          fillColor: markercolor,
-          fillOpacity: 0.6,
-        })
-          // .addTo(mymap)
-          .bindPopup(
-            "<b>" +
-              row.Business +
-              "</b><br/>" +
-              row["Address"] +
-              "<br/>" +
-              row.Count
-          );
-
-        bmarkers.on("mouseover", function (e) {
-          this.openPopup();
-        });
-
-        markersBLayer.addLayer(bmarkers);
-      }
-
+     
       let bfile = fetchCDateFile(date);
 
       // file.filter(function(d) {
@@ -398,11 +463,44 @@
       for (var i in bfile) {
         var row = bfile[i];
         // console.log("row: " + i + " " + row.Latitude)
+        if (row.Latitude > 0){
         var markercolor;
 
-        let bbmarkers = L.circleMarker([row.Latitude, row.Longitude], {
+        let bcmarkers = L.circleMarker([row.Latitude, row.Longitude], {
           radius: row.Count * 5,
           color: "#bc4749",
+          fillColor: markercolor,
+          fillOpacity: 0.7,
+        })
+          // .addTo(mymap)
+          .bindPopup(
+            "<b>" +
+              row.Business +
+              "</b><br/>" +
+              row["Address"] +
+              "<br/>" +
+              row.Count
+          );
+
+        bcmarkers.on("mouseover", function (e) {
+          this.openPopup();
+        });
+
+        markersBLayer.addLayer(bcmarkers);
+      }
+    }
+
+    for (var i in file) {
+        var row = file[i];
+        // console.log("row: " + i + " " + row.Latitude)
+
+        // markersBLayer.clearLayers();
+        if (row.Latitude >0){
+        var markercolor;
+
+        let bomarkers = L.circleMarker([row.Latitude, row.Longitude], {
+          radius: row.Count * 5,
+          color: "#6a994e",
           fillColor: markercolor,
           fillOpacity: 0.6,
         })
@@ -416,12 +514,14 @@
               row.Count
           );
 
-        bbmarkers.on("mouseover", function (e) {
+        bomarkers.on("mouseover", function (e) {
           this.openPopup();
         });
 
-        markersBLayer.addLayer(bbmarkers);
+        markersBLayer.addLayer(bomarkers);
       }
+    }
+
       markersBLayer.addTo(mymap3);
     }
 
@@ -1058,6 +1158,7 @@
       // create separate geojson files from the csv
       removeOLayer(checkdate);
       removeCLayer(checkdate);
+      removeBLayer(checkdate);
 
       active_month = checkdate;
     }
