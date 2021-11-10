@@ -52,31 +52,33 @@
 <body>
   <script src="https://d3js.org/d3.v6.min.js"></script>
 
+  <div id="content-container">
+    <h1>Lower Manhattan Retail Maps</h1>
   <div id="histogram">
-    <h2>Histogram of closures/openings over time</h2>
-    <div id="histo"></div>
-  </div>
+    <div id="histo">
+      <h2>Histogram of closures/openings over time</h2></div>
+  </div><br/><br/><br/>
   <div style="display: inline-flex">
     <div id="opening-map" style="flex-order: 1">
       <h2>Opened Businesses</h2>
       <div id="mapid"></div>
 
-      <p>
+      <!-- <p>
         Of the <b>127</b> businesses that opened in Lower Manhattan during the
         pandemic, <b>65</b> are restaurants or bars, <b>21</b> are personal or
         business services, <b>19</b> are shops, and <b>8</b> are hotels.
-      </p>
+      </p> -->
     </div>
 
     <div id="closing-map">
       <h2>Closed Businesses</h2>
       <div id="mapid2"></div>
 
-      <p>
+      <!-- <p>
         Of the <b>218</b> businesses that closed in Lower Manhattan during the
         pandemic, <b>94</b> are restaurants or bars, <b>39</b> are personal or
         business services, <b>65</b> are shops, and <b>7</b> are hotels.
-      </p>
+      </p> -->
     </div>
 
 
@@ -85,7 +87,7 @@
       <div id="mapid3"></div>
     </div>
   </div>
-
+</div>
   <!-- <script src="./graphic_opened.js"></script> -->
   <!--  <script src="./graphic_closed.js"></script> -->
 
@@ -172,9 +174,9 @@
 
         let omarkers = L.circleMarker([row.Latitude, row.Longitude], {
           radius: row.Count * 5,
-          color: "green",
+          color: "#6a994e",
           fillColor: markercolor,
-          fillOpacity: 0.4,
+          fillOpacity: 0.7,
         })
           // .addTo(mymap)
           .bindPopup(
@@ -233,9 +235,9 @@
 
         var cmarkers = L.circleMarker([row.Latitude, row.Longitude], {
           radius: row.Count * 5,
-          color: "red",
+          color: "#bc4749",
           fillColor: markercolor,
-          fillOpacity: 0.4,
+          fillOpacity: 0.6,
         })
           // .addTo(mymap2)
           .bindPopup(
@@ -290,9 +292,9 @@
 
         let omarkers = L.circleMarker([row.Latitude, row.Longitude], {
           radius: row.Count * 5,
-          color: "green",
+          color: "#73ba9b",
           fillColor: markercolor,
-          fillOpacity: 0.4,
+          fillOpacity: 0.6,
         })
           // .addTo(mymap)
           .bindPopup(
@@ -330,9 +332,9 @@
 
         let cmarkers = L.circleMarker([row.Latitude, row.Longitude], {
           radius: row.Count * 5,
-          color: "red",
+          color: "#bc4749",
           fillColor: markercolor,
-          fillOpacity: 0.4,
+          fillOpacity: 0.6,
         })
           // .addTo(mymap)
           .bindPopup(
@@ -369,9 +371,9 @@
 
         let bmarkers = L.circleMarker([row.Latitude, row.Longitude], {
           radius: row.Count * 5,
-          color: "red",
+          color: "#bc4749",
           fillColor: markercolor,
-          fillOpacity: 0.4,
+          fillOpacity: 0.6,
         })
           // .addTo(mymap)
           .bindPopup(
@@ -402,9 +404,9 @@
 
         let bbmarkers = L.circleMarker([row.Latitude, row.Longitude], {
           radius: row.Count * 5,
-          color: "red",
+          color: "#bc4749",
           fillColor: markercolor,
-          fillOpacity: 0.4,
+          fillOpacity: 0.6,
         })
           // .addTo(mymap)
           .bindPopup(
@@ -694,7 +696,7 @@
         top: 60,
         right: 12,
         bottom: 30,
-        left: 120,
+        left: 80,
       },
       width = 720 - margin.left - margin.right,
       height = 400 - margin.top - margin.bottom;
@@ -707,7 +709,7 @@
     var y = d3.scale.linear().range([height, 0]);
     var color = d3.scale
       .ordinal()
-      .range([d3.rgb("#CC0000"), d3.rgb("green"), d3.rgb("blue")]);
+      .range([d3.rgb("#bc4749"), d3.rgb("#6a994e"), d3.rgb("#05668d")]);
 
     var xAxis = d3.svg
       .axis()
@@ -817,7 +819,7 @@
           // console.log(d);
           return color(d.borough);
         })
-        .attr("opacity", 0.8)
+        .attr("opacity", 1)
         .style("stroke", function (d, i) {
           return d3.rgb(color(d.borough)).darker();
         });

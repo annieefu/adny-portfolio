@@ -1,7 +1,7 @@
 #mapid, #mapid2, #mapid3 { 
-    height: 500px; 
-    width: 600px;
-    margin: auto;
+    height: 450px;
+    width:32.5rem;
+    margin: 1rem;
 }
 
 #histo {
@@ -10,18 +10,23 @@
 }
 
 body{
-    background: whitesmoke;
+    background: #386641;
 }
 
 
 #content-container {
-    padding-left: 180px;
-    padding-right: 180px;
-    padding-top: 40px;
+    padding: 2rem;
+    margin: 6rem;
+    margin-top: 4rem;
+    padding-top: 30px;
+    background: #f2e8cf;
+    border-style: double;
 }
 
 h1{
     font-family: "Barlow Condensed";
+    font-size: 36px;
+    margin-top: 0rem;
 }
 
 h2{
