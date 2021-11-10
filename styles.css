@@ -10,7 +10,7 @@
 #mapid, #mapid2, #mapid3 { 
     height: 450px;
     width: auto;
-    min-width: 25rem;
+    /* min-width: 25rem; */
     margin: 1rem;
 }
 
