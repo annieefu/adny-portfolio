@@ -20,7 +20,7 @@
 }
 
 body{
-    background: #386641;
+    background: offwhite;
 }
 
 
@@ -29,8 +29,8 @@ body{
     margin: 6rem;
     margin-top: 4rem;
     padding-top: 30px;
-    background: #f2e8cf;
-    border-style: double;
+    background: whitesmoke;
+    /* border-style: double; */
 }
 
 h1{
@@ -40,7 +40,7 @@ h1{
 }
 
 h2{
-    font-family: "IBM Plex Serif"
+    font-family: "Libre Franklin"
 }
 
 p{
